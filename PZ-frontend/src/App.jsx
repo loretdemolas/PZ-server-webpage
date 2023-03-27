@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import ToggleOption from './InputOptions/booleanOptions';
-import {saveSettings} from './API/saveSettings'
+import {saveSettings, fetchSettings} from './API/Setting-API'
 
 function App() {
   const [settings, setSettings] = useState({});
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/settings')
-      .then(response => response.json())
-      .then(data => setSettings(data));
+    const getSettings = async () => {
+      const data = await fetchSettings();
+      setSettings(data);
+    }
+    getSettings();
   }, []);
 
-  const handleSave = () => {
-    saveSettings(settings)
-      .then(data => console.log(data));
+  const handleSave = async () => {
+    const response = await saveSettings(settings);
+    console.log(response);
   };
   
    const handleInputChange = (event) => {

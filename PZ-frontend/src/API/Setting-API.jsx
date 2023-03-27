@@ -6,3 +6,9 @@ export const saveSettings= async (settings) => {
     });
     return await response.json();
     };
+
+export const fetchSettings = async () => {
+    const response = await fetch('http://localhost:3000/api/settings');
+    const data = await response.json();
+    return data;
+    }
