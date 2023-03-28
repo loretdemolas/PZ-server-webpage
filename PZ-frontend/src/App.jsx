@@ -1,29 +1,50 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, NavLink} from 'react-router-dom';
-import ServerSetting from './Pages/settings/Settings'
+import { BrowserRouter as Router, Route, Routes, NavLink } from 'react-router-dom';
+import ServerSetting from './Pages/settings/Settings';
 import AntiCheatSetting from './Pages/settings/AntiCheat';
 import Communication from './Pages/settings/Communications';
 import GameSetting from './Pages/settings/GameSettings';
 import AddedContent from './Pages/settings/AddedContent';
 
-function NavBar() {
+function SettingsNavBar() {
   return (
     <nav>
-      <ul>
-        <li>
-          <NavLink to="/settings" activeClassName="active">Server</NavLink>
+      <ul style={{ display: "flex", listStyleType: "none", margin: 0, padding: 0 }}>
+        <li style={{ marginRight: "1rem" }}>
+          <NavLink to="/" activeClassName="active">Home</NavLink>
         </li>
-        <li>
-          <NavLink to="/settings/anticheat" activeClassName="active">Anti-Cheat</NavLink>
+        <li style={{ marginRight: "1rem" }}>
+          <NavLink to="/settings" activeClassName="active">Admin Settings</NavLink>
         </li>
-        <li>
+        <li style={{ marginRight: "1rem" }}>
+          <NavLink to="/settings/anticheat" activeClassName="active">Anti-Cheat </NavLink>
+        </li>
+        <li style={{ marginRight: "1rem" }}>
           <NavLink to="/settings/communication" activeClassName="active">Communication</NavLink>
         </li>
-        <li>
+        <li style={{ marginRight: "1rem" }}>
           <NavLink to="/settings/game" activeClassName="active">Game Settings</NavLink>
         </li>
-        <li>
+        <li style={{ marginRight: "1rem" }}>
           <NavLink to="/settings/content" activeClassName="active">Added Content</NavLink>
+        </li>
+      </ul>
+    </nav>
+  );
+}
+
+function HomeNavBar() {
+  return (
+    <nav>
+      <ul style={{ display: "flex", listStyleType: "none", margin: 0, padding: 0 }}>
+        <li style={{ marginRight: "1rem" }}>
+          <NavLink to="/" activeClassName="active">Home</NavLink>
+        </li>
+        <li style={{ marginRight: "1rem" }}>
+          <NavLink to="/tools" activeClassName="active">Tools</NavLink>
+        </li>
+        <li style={{ marginRight: "1rem" }}>
+          <NavLink to="/settings" activeClassName="active"> Server Settings</NavLink>
         </li>
       </ul>
     </nav>
@@ -33,7 +54,7 @@ function NavBar() {
 function SettingsWrapper({ children }) {
   return (
     <>
-      <NavBar />
+      <SettingsNavBar />
       {children}
     </>
   );
@@ -43,17 +64,33 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<div>Home</div>} />
-        <Route path="/tools" element={<div>Tools</div>} />
-        <Route path="/settings/*" element={<SettingsWrapper>
-          <Routes>
-            <Route path="/" element={<ServerSetting />} />
-            <Route path="/anticheat" element={<AntiCheatSetting />} />
-            <Route path="/communication" element={<Communication />} />
-            <Route path="/game" element={<GameSetting />} />
-            <Route path="/content" element={<AddedContent />} />
-          </Routes>
-        </SettingsWrapper>} />
+        <Route
+          path="/settings/*"
+          element={
+            <SettingsWrapper>
+              <Routes>
+                <Route path="/" element={<ServerSetting />} />
+                <Route path="/anticheat" element={<AntiCheatSetting />} />
+                <Route path="/communication" element={<Communication />} />
+                <Route path="/game" element={<GameSetting />} />
+                <Route path="/content" element={<AddedContent />} />
+              </Routes>
+            </SettingsWrapper>
+          }
+        />
+        <Route
+          path="/*"
+          element={
+            <>
+              <HomeNavBar />
+              <Routes>
+                <Route path="/" element={<div>Home</div>} />
+                <Route path="/tools" element={<div>Tools</div>} />
+                <Route path="/settings" element={<div>Settings</div>} />
+              </Routes>
+            </>
+          }
+        />
       </Routes>
     </Router>
   );
