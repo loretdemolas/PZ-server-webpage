@@ -2,13 +2,16 @@ import { fetchSettings, saveSettings } from './API/Setting-API';
 import React, { useState, useEffect } from 'react';
 
 export default function AddedContent() {
+  const [isLoading, setIsLoading] = useState(true);
   const [settings, setSettings] = useState({});
-
+  
   useEffect(() => {
     const getSettings = async () => {
+      setIsLoading(true);
       const data = await fetchSettings();
       setSettings(data);
-    }
+      setIsLoading(false);
+    };
     getSettings();
   }, []);
 
@@ -56,25 +59,31 @@ export default function AddedContent() {
   const Mods = settings.Mods ? settings.Mods.split('|') : [];
 
   return (
-    <div>
-      <div>
-        <label htmlFor="workshop-input">Workshop ID:</label>
-        <input type="text" id="workshop-input" value={workshopInput} onChange={e => setWorkshopInput(e.target.value)} />
-        <label htmlFor="mod-input">Mod name:</label>
-        <input type="text" id="mod-input" value={modInput} onChange={e => setModInput(e.target.value)} />
-        <button onClick={handleAdd}>Add</button>
-      </div>
-      <div>
-        <ul>
-          {WorkshopItems.map((item, index) => (
-            <li key={index}>
-              {item} - {Mods[index]}
-              <button onClick={() => handleRemove(index)}>Remove</button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <button onClick={handleSave}>Save</button>
-    </div>
+    <>
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <div>
+          <div>
+            <label htmlFor="workshop-input">Workshop ID:</label>
+            <input type="text" id="workshop-input" value={workshopInput} onChange={e => setWorkshopInput(e.target.value)} />
+            <label htmlFor="mod-input">Mod name:</label>
+            <input type="text" id="mod-input" value={modInput} onChange={e => setModInput(e.target.value)} />
+            <button onClick={handleAdd}>Add</button>
+          </div>
+          <div>
+            <ul>
+              {WorkshopItems.map((item, index) => (
+                <li key={index}>
+                  {item} - {Mods[index]}
+                  <button onClick={() => handleRemove(index)}>Remove</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <button onClick={handleSave}>Save</button>
+        </div>
+      )}
+    </>
   );
 }

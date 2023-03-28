@@ -4,13 +4,16 @@ import InputOption from './InputOptions/InputOptions';
 import {saveSettings, fetchSettings} from './API/Setting-API';
 
 export default function ServerSetting() {
+  const [isLoading, setIsLoading] = useState(true);
   const [settings, setSettings] = useState({});
-
+  
   useEffect(() => {
     const getSettings = async () => {
+      setIsLoading(true);
       const data = await fetchSettings();
       setSettings(data);
-    }
+      setIsLoading(false);
+    };
     getSettings();
   }, []);
 
@@ -25,7 +28,11 @@ export default function ServerSetting() {
   };
 
   return (
-    <div>
+    <>
+    {isLoading ? (
+      <div>Loading...</div>
+    ) : (
+      <div>
       <>
         <h3>Connection Settings</h3>
         <ToggleOption label="Public" name="Public" value={settings.Public} onChange={handleInputChange} />
@@ -87,6 +94,8 @@ export default function ServerSetting() {
       </>
       
       <button onClick={handleSave}>Save</button>
-    </div>
+      </div>
+    )}
+    </>
   );
 }
