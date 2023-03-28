@@ -37,6 +37,8 @@ export default function AntiCheatSetting() {
       <>
         <ToggleOption label="DoLuaChecksum" name="DoLuaChecksum" value={settings.DoLuaChecksum} onChange={handleInputChange} />
         <ToggleOption label="KickFastPlayers" name="KickFastPlayers" value={settings.KickFastPlayers} onChange={handleInputChange} />
+        <ToggleOption label="BanKickGlobalSound" name="BanKickGlobalSound" value={settings.BanKickGlobalSound} onChange={handleInputChange} />
+
       </>
 
       <>
