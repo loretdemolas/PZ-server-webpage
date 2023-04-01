@@ -1,14 +1,19 @@
 import React from 'react';
 
 export default function InputOption(props) {
-  const { label, name, value, onChange, enabled  } = props;
+  const { label, name, value, onChange, enabled, helper } = props;
 
   return (
-    <div>
-      <label>
-        {label}
-        <input type="text" name={name} value={value} onChange={onChange} disabled={!enabled}/>
-      </label>
-    </div>
+    <>
+      {enabled ? (
+        <div>
+          {helper}
+          <label>
+            {label}
+            <input type="text" name={name} value={value} onChange={onChange} />
+          </label>
+        </div>
+      ) : null}
+    </>
   );
 }

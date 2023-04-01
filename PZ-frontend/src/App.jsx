@@ -9,16 +9,16 @@ function SettingsNavBar() {
     <nav>
       <ul style={{ display: "flex", listStyleType: "none", margin: 0, padding: 0 }}>
         <li style={{ marginRight: "1rem" }}>
-          <NavLink to="/" activeClassName="active">Home</NavLink>
+          <NavLink to="/" activeclassname="active">Home</NavLink>
         </li>
         <li style={{ marginRight: "1rem" }}>
-          <NavLink to="/settings" activeClassName="active">Admin Settings</NavLink>
+          <NavLink to="/settings" activeclassname="active">Admin Settings</NavLink>
         </li>
         <li style={{ marginRight: "1rem" }}>
-          <NavLink to="/settings/anticheat" activeClassName="active">Anti-Cheat </NavLink>
+          <NavLink to="/settings/anticheat" activeclassname="active">Anti-Cheat </NavLink>
         </li>
         <li style={{ marginRight: "1rem" }}>
-          <NavLink to="/settings/content" activeClassName="active">Added Content</NavLink>
+          <NavLink to="/settings/content" activeclassname="active">Added Content</NavLink>
         </li>
       </ul>
     </nav>
@@ -30,13 +30,13 @@ function HomeNavBar() {
     <nav>
       <ul style={{ display: "flex", listStyleType: "none", margin: 0, padding: 0 }}>
         <li style={{ marginRight: "1rem" }}>
-          <NavLink to="/" activeClassName="active">Home</NavLink>
+          <NavLink to="/" activeclassname="active">Home</NavLink>
         </li>
         <li style={{ marginRight: "1rem" }}>
-          <NavLink to="/tools" activeClassName="active">Tools</NavLink>
+          <NavLink to="/tools" activeclassname="active">Tools</NavLink>
         </li>
         <li style={{ marginRight: "1rem" }}>
-          <NavLink to="/settings" activeClassName="active"> Server Settings</NavLink>
+          <NavLink to="/settings" activeclassname="active"> Server Settings</NavLink>
         </li>
       </ul>
     </nav>

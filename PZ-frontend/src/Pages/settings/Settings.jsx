@@ -20,6 +20,10 @@ export default function ServerSetting() {
   const handleSave = async () => {
     const response = await saveSettings(settings);
     console.log(response);
+    setIsLoading(true);
+    const data = await fetchSettings();
+    setSettings(data);
+    setIsLoading(false);
   };
   
    const handleInputChange = (event) => {
@@ -118,28 +122,28 @@ export default function ServerSetting() {
         </>
         <>
         <h3> Player Name related Settings </h3>
-        <ToggleOption label="DisplayUserName" name="DisplayUserName" value={settings.DisplayUserName} onChange={handleInputChange} />
-        <ToggleOption label="ShowFirstAndLastName" name="ShowFirstAndLastName" value={settings.ShowFirstAndLastName} onChange={handleInputChange} />
-        <ToggleOption label="AllowNonAsciiUsername" name="AllowNonAsciiUsername" value={settings.AllowNonAsciiUsername} onChange={handleInputChange} />
-        <ToggleOption label="MouseOverToSeeDisplayName" name="MouseOverToSeeDisplayName" value={settings.MouseOverToSeeDisplayName} onChange={handleInputChange} />
+        <ToggleOption label="DisplayUserName" name="DisplayUserName" value={settings.DisplayUserName} onChange={handleInputChange} disabled = {Notdisabled}/>
+        <ToggleOption label="ShowFirstAndLastName" name="ShowFirstAndLastName" value={settings.ShowFirstAndLastName} onChange={handleInputChange} disabled = {Notdisabled}/>
+        <ToggleOption label="AllowNonAsciiUsername" name="AllowNonAsciiUsername" value={settings.AllowNonAsciiUsername} onChange={handleInputChange} disabled = {Notdisabled}/>
+        <ToggleOption label="MouseOverToSeeDisplayName" name="MouseOverToSeeDisplayName" value={settings.MouseOverToSeeDisplayName} onChange={handleInputChange} disabled = {Notdisabled}/>
         </>
         <>
         <h3>Safehouse Factions and spawning!</h3>
-        <ToggleOption label="PlayerSafehouse" name="PlayerSafehouse" value={settings.PlayerSafehouse} onChange={handleInputChange} />
-        <ToggleOption label="AdminSafehouse" name="AdminSafehouse" value={settings.AdminSafehouse} onChange={handleInputChange} />
-        <ToggleOption label="SafehouseAllowTrepass" name="SafehouseAllowTrepass" value={settings.SafehouseAllowTrepass} onChange={handleInputChange} />
-        <ToggleOption label="SafehouseAllowFire" name="SafehouseAllowFire" value={settings.SafehouseAllowFire} onChange={handleInputChange} />
-        <ToggleOption label="SafehouseAllowLoot" name="SafehouseAllowLoot" value={settings.SafehouseAllowLoot} onChange={handleInputChange} />
-        <ToggleOption label="SafehouseAllowRespawn" name="SafehouseAllowRespawn" value={settings.SafehouseAllowRespawn} onChange={handleInputChange} />
-        <ToggleOption label="SafehouseAllowNonResidential" name="SafehouseAllowNonResidential" value={settings.SafehouseAllowNonResidential} onChange={handleInputChange} />
-        <ToggleOption label="AllowDestructionBySledgehammer" name="AllowDestructionBySledgehammer" value={settings.AllowDestructionBySledgehammer} onChange={handleInputChange} />
-        <ToggleOption label="SledgehammerOnlyInSafehouse" name="SledgehammerOnlyInSafehouse" value={settings.SledgehammerOnlyInSafehouse} onChange={handleInputChange} />
+        <ToggleOption label="PlayerSafehouse" name="PlayerSafehouse" value={settings.PlayerSafehouse} onChange={handleInputChange} disabled = {Notdisabled}/>
+        <ToggleOption label="AdminSafehouse" name="AdminSafehouse" value={settings.AdminSafehouse} onChange={handleInputChange} disabled = {Notdisabled}/>
+        <ToggleOption label="SafehouseAllowTrepass" name="SafehouseAllowTrepass" value={settings.SafehouseAllowTrepass} onChange={handleInputChange} disabled={isPlayerSafehouseEnabled}/>
+        <ToggleOption label="SafehouseAllowFire" name="SafehouseAllowFire" value={settings.SafehouseAllowFire} onChange={handleInputChange} disabled={isPlayerSafehouseEnabled}/>
+        <ToggleOption label="SafehouseAllowLoot" name="SafehouseAllowLoot" value={settings.SafehouseAllowLoot} onChange={handleInputChange} disabled={isPlayerSafehouseEnabled}/>
+        <ToggleOption label="SafehouseAllowRespawn" name="SafehouseAllowRespawn" value={settings.SafehouseAllowRespawn} onChange={handleInputChange} disabled={isPlayerSafehouseEnabled}/>
+        <ToggleOption label="SafehouseAllowNonResidential" name="SafehouseAllowNonResidential" value={settings.SafehouseAllowNonResidential} onChange={handleInputChange} disabled={isPlayerSafehouseEnabled} />
+        <ToggleOption label="AllowDestructionBySledgehammer" name="AllowDestructionBySledgehammer" value={settings.AllowDestructionBySledgehammer} onChange={handleInputChange} disabled = {Notdisabled}/>
+        <ToggleOption label="SledgehammerOnlyInSafehouse" name="SledgehammerOnlyInSafehouse" value={settings.SledgehammerOnlyInSafehouse} onChange={handleInputChange} disabled={isPlayerSafehouseEnabled}/>
         <InputOption label="SafehouseDaySurvivedToClaim" name="SafehouseDaySurvivedToClaim" value={settings.SafehouseDaySurvivedToClaim} onChange={handleInputChange} enabled={isPlayerSafehouseEnabled} />
         <InputOption label="SafeHouseRemovalTime" name="SafeHouseRemovalTime" value={settings.SafeHouseRemovalTime} onChange={handleInputChange} enabled={isPlayerSafehouseEnabled}/>
-        <ToggleOption label="PlayerRespawnWithSelf" name="PlayerRespawnWithSelf" value={settings.PlayerRespawnWithSelf} onChange={handleInputChange} />
-        <ToggleOption label="PlayerRespawnWithOther" name="PlayerRespawnWithOther" value={settings.PlayerRespawnWithOther} onChange={handleInputChange} />
+        <ToggleOption label="PlayerRespawnWithSelf" name="PlayerRespawnWithSelf" value={settings.PlayerRespawnWithSelf} onChange={handleInputChange} disabled = {Notdisabled}/>
+        <ToggleOption label="PlayerRespawnWithOther" name="PlayerRespawnWithOther" value={settings.PlayerRespawnWithOther} onChange={handleInputChange} disabled = {Notdisabled}/>
         <ToggleOption label="DisableSafehouseWhenPlayerConnected" name="DisableSafehouseWhenPlayerConnected" value={settings.DisableSafehouseWhenPlayerConnected} onChange={handleInputChange} />
-        <ToggleOption label="Faction" name="Faction" value={settings.Faction} onChange={handleInputChange} />
+        <ToggleOption label="Faction" name="Faction" value={settings.Faction} onChange={handleInputChange} disabled = {Notdisabled}/>
         <InputOption label="FactionDaySurvivedToCreate" name="FactionDaySurvivedToCreate" value={settings.FactionDaySurvivedToCreate} onChange={handleInputChange} enabled={isFactionEnabled} />
         <InputOption label="FactionPlayersRequiredForTag" name="FactionPlayersRequiredForTag" value={settings.FactionPlayersRequiredForTag} onChange={handleInputChange} enabled={isFactionEnabled}/>
         <InputOption label="SpawnPoint" name="SpawnPoint" value={settings.SpawnPoint} onChange={handleInputChange} enabled={enabled}/>
@@ -149,47 +153,47 @@ export default function ServerSetting() {
         <InputOption label="SpawnItems" name="SpawnItems" value={settings.SpawnItems} onChange={handleInputChange} enabled={enabled}/>
         <InputOption label="HoursForLootRespawn" name="HoursForLootRespawn" value={settings.HoursForLootRespawn} onChange={handleInputChange} enabled={enabled}/>
         <InputOption label="MaxItemsForLootRespawn" name="MaxItemsForLootRespawn" value={settings.MaxItemsForLootRespawn} onChange={handleInputChange} enabled={enabled} />
-        <ToggleOption label="ConstructionPreventsLootRespawn" name="ConstructionPreventsLootRespawn" value={settings.ConstructionPreventsLootRespawn} onChange={handleInputChange} />
+        <ToggleOption label="ConstructionPreventsLootRespawn" name="ConstructionPreventsLootRespawn" value={settings.ConstructionPreventsLootRespawn} onChange={handleInputChange} disabled = {Notdisabled}/>
         </>
         <>
         <h3>General</h3>
         <InputOption label="MapRemotePlayerVisibility" name="MapRemotePlayerVisibility" value={settings.MapRemotePlayerVisibility} onChange={handleInputChange} enabled={enabled}/>
         <InputOption label="MinutesPerPage" name="MinutesPerPage" value={settings.MinutesPerPage} onChange={handleInputChange} enabled={enabled} />
-        <ToggleOption label="SleepAllowed" name="SleepAllowed" value={settings.SleepAllowed} onChange={handleInputChange} />
-        <ToggleOption label="SleepNeeded" name="SleepNeeded" value={settings.SleepNeeded} onChange={handleInputChange} />
+        <ToggleOption label="SleepAllowed" name="SleepAllowed" value={settings.SleepAllowed} onChange={handleInputChange}disabled = {Notdisabled} />
+        <ToggleOption label="SleepNeeded" name="SleepNeeded" value={settings.SleepNeeded} onChange={handleInputChange} disabled = {Notdisabled}/>
         <InputOption label="CarEngineAttractionModifier" name="CarEngineAttractionModifier" value={settings.CarEngineAttractionModifier} onChange={handleInputChange} enabled={enabled}/>
         <InputOption label="SpeedLimit" name="SpeedLimit" value={settings.SpeedLimit} onChange={handleInputChange} enabled={enabled}/>
         <InputOption label="FastForwardMultiplier" name="FastForwardMultiplier" value={settings.FastForwardMultiplier} onChange={handleInputChange} enabled={enabled} />
         <InputOption label="BloodSplatLifespanDays" name="BloodSplatLifespanDays" value={settings.BloodSplatLifespanDays} onChange={handleInputChange} enabled={enabled}/>
-        <ToggleOption label="TrashDeleteAll" name="TrashDeleteAll" value={settings.TrashDeleteAll} onChange={handleInputChange} />
+        <ToggleOption label="TrashDeleteAll" name="TrashDeleteAll" value={settings.TrashDeleteAll} onChange={handleInputChange} disabled = {Notdisabled} />
         </>
         <>
         <h3>General Chat Settings</h3>
-          <ToggleOption label="GlobalChat" name="GlobalChat" value={settings.GlobalChat} onChange={handleInputChange} />
+          <ToggleOption label="GlobalChat" name="GlobalChat" value={settings.GlobalChat} onChange={handleInputChange} disabled = {Notdisabled}/>
           <InputOption label="ChatStreams" name="ChatStreams" value={settings.ChatStreams} onChange={handleInputChange} enabled={enabled}/>
         </>
         <>
         <h3>Discord Settings</h3>
-          <ToggleOption label="DiscordEnable" name="DiscordEnable" value={settings.DiscordEnable} onChange={handleInputChange} />
+          <ToggleOption label="DiscordEnable" name="DiscordEnable" value={settings.DiscordEnable} onChange={handleInputChange} disabled = {Notdisabled}/>
           <InputOption label="DiscordToken" name="DiscordToken" value={settings.DiscordToken} onChange={handleInputChange} enabled={isDisordEnabled}/>
           <InputOption label="DiscordChannel" name="DiscordChannel" value={settings.DiscordChannel} onChange={handleInputChange}enabled={isDisordEnabled} />
           <InputOption label="DiscordChannelID" name="DiscordChannelID" value={settings.DiscordChannelID} onChange={handleInputChange} enabled={isDisordEnabled}/>
         </>
         <>
         <h3>Voice Chat Settings</h3>
-          <ToggleOption label="VoiceEnable" name="VoiceEnable" value={settings.VoiceEnable} onChange={handleInputChange} />
+          <ToggleOption label="VoiceEnable" name="VoiceEnable" value={settings.VoiceEnable} onChange={handleInputChange} disabled = {Notdisabled}/>
           <InputOption label="VoiceMinDistance" name="VoiceMinDistance" value={settings.VoiceMinDistance} onChange={handleInputChange} enabled={isVoiceEnabled}/>
           <InputOption label="VoiceMaxDistance" name="VoiceMaxDistance" value={settings.VoiceMaxDistance} onChange={handleInputChange} enabled={isVoiceEnabled}/>
-          <ToggleOption label="Voice3D" name="Voice3D" value={settings.Voice3D} onChange={handleInputChange} />
+          <ToggleOption label="Voice3D" name="Voice3D" value={settings.Voice3D} onChange={handleInputChange} disabled = {Notdisabled}/>
         </>
         <>
         <h3>Group Related Radio Permission</h3>
-          <ToggleOption label="DisableRadioStaff" name="DisableRadioStaff" value={settings.DisableRadioStaff} onChange={handleInputChange} />
-          <ToggleOption label="DisableRadioAdmin" name="DisableRadioAdmin" value={settings.DisableRadioAdmin} onChange={handleInputChange} />
-          <ToggleOption label="DisableRadioGM" name="DisableRadioGM" value={settings.DisableRadioGM} onChange={handleInputChange} />
-          <ToggleOption label="DisableRadioOverseer" name="DisableRadioOverseer" value={settings.DisableRadioOverseer} onChange={handleInputChange} />
-          <ToggleOption label="DisableRadioModerator" name="DisableRadioModerator" value={settings.DisableRadioModerator} onChange={handleInputChange} />
-          <ToggleOption label="DisableRadioInvisible" name="DisableRadioInvisible" value={settings.DisableRadioInvisible} onChange={handleInputChange} />
+          <ToggleOption label="DisableRadioStaff" name="DisableRadioStaff" value={settings.DisableRadioStaff} onChange={handleInputChange} disabled = {Notdisabled}/>
+          <ToggleOption label="DisableRadioAdmin" name="DisableRadioAdmin" value={settings.DisableRadioAdmin} onChange={handleInputChange} disabled = {Notdisabled}/>
+          <ToggleOption label="DisableRadioGM" name="DisableRadioGM" value={settings.DisableRadioGM} onChange={handleInputChange} disabled = {Notdisabled}/>
+          <ToggleOption label="DisableRadioOverseer" name="DisableRadioOverseer" value={settings.DisableRadioOverseer} onChange={handleInputChange} disabled = {Notdisabled}/>
+          <ToggleOption label="DisableRadioModerator" name="DisableRadioModerator" value={settings.DisableRadioModerator} onChange={handleInputChange} disabled = {Notdisabled}/>
+          <ToggleOption label="DisableRadioInvisible" name="DisableRadioInvisible" value={settings.DisableRadioInvisible} onChange={handleInputChange} disabled = {Notdisabled}/>
         </>
       
       <button onClick={handleSave}>Save</button>
