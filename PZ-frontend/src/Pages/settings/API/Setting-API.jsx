@@ -13,13 +13,3 @@ export const fetchSettings = async () => {
     return data;
     }
     
-export const saveModSettings = async (formattedSettings) => {
-const response = await fetch('http://localhost:3000/api/settings', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formattedSettings,
-});
-const data = await response.json();
-return data;
-};
-
