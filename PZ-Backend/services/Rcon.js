@@ -6,150 +6,127 @@ import { EventEmitter } from 'events';
 class Rcon extends EventEmitter {
   #socket;
   #authenticated = false;
-  #reconnectTimeout;
+  #callbacks = {};
+  #packetId = 0;
 
-  constructor(options) {
+  constructor(host, port, password) {
     super();
-    this.host = options.host;
-    this.port = options.port;
-    this.password = options.password;
-    this.timeout = options.timeout || 5000; // default timeout of 5 seconds
+    this.host = host;
+    this.port = port;
+    this.password = password;
+  }
 
+  connect() {
     this.#socket = new net.Socket();
-
-    this.#socket.on('error', (err) => {
-      console.error(`RCON error: ${err}`);
-      this.emit('error', err);
+    this.#socket.connect(this.port, this.host, () => {
+      console.log('Connected to RCON server');
     });
-
-    this.#socket.on('close', () => {
-      this.#authenticated = false;
-      this.emit('disconnected');
-      if (this.#reconnectTimeout) return; // don't start reconnecting if already waiting to reconnect
-      this.#reconnectTimeout = setTimeout(() => {
-        this.connect()
-          .then(() => {
-            this.emit('reconnected');
-          })
-          .catch((err) => {
-            this.emit('reconnectFailed', err);
-          })
-          .finally(() => {
-            this.#reconnectTimeout = null;
-          });
-      }, 5000); // attempt to reconnect every 5 seconds
-    });
-
-    this.connect(); // automatically connect on instantiation
+    this.#socket.on('data', this.#handleData.bind(this));
+    this.#socket.on('error', this.#handleError.bind(this));
   }
 
-  #sendPacket = (packet) => {
-    return new Promise((resolve, reject) => {
-      this.#socket.write(packet);
+  send(data, callback) {
+    if (!this.#authenticated && data.type !== 3) {
+      console.error('Cannot send non-authentication request before authenticating');
+      return;
+    }
 
-      const onData = (data) => {
-        const packetSize = data.readInt32LE(0);
-        const responseType = data.readInt32LE(4);
-        const response = data.toString('utf8', 8, packetSize + 2);
+    if (callback) {
+      this.#packetId++;
+      this.#callbacks[this.#packetId] = callback;
+    }
 
-        if (responseType === 2) {
-          this.#authenticated = true;
-          this.#socket.off('data', onData);
-          resolve();
-        } else if (responseType === -1) {
-          this.#socket.off('data', onData);
-          reject(new Error('RCON authentication failed'));
-        } else {
-          this.#socket.off('data', onData);
-          reject(new Error(`Unexpected RCON response type: ${responseType}`));
+    const size = Buffer.byteLength(data.body) + 14;
+    const buffer = Buffer.alloc(size);
+    buffer.writeInt32LE(size - 4, 0);
+    buffer.writeInt32LE(this.#packetId, 4);
+    buffer.writeInt32LE(data.type, 8);
+    buffer.write(data.body, 12, size -2);
+    buffer.writeInt16LE(0, size - 2);
+
+    this.#socket.write(buffer);
+  }
+
+  #handleData(data) {
+    console.log("data:",data);
+    console.log(data.length)
+    let offset = 0;
+    let id, type, body;
+  
+    if (data.length - 4 > 10) {
+      while (offset <= data.length - 4) {
+        console.log(offset)
+        const size = data.readInt32LE(offset);
+        if (offset + size > data.length){
+          console.error('Packet size exceeds buffer length');
+          break;
         }
-      };
-
-      this.#socket.on('data', onData);
-
-      setTimeout(() => {
-        this.#socket.off('data', onData);
-        reject(new Error(`RCON request timed out after ${this.timeout}ms`));
-      }, this.timeout);
-    });
+        id = data.readInt32LE(offset + 4);
+        type = data.readInt32LE(offset + 8);
+        body = size >= 10 ? data.toString('ascii', offset + 12, offset + size - 2) : '';
+  
+        if (id !== 0 && this.#callbacks[id]) {
+          this.#callbacks[id](body);
+          delete this.#callbacks[id];
+        } else {
+          this.#handleResponse({ id, type, body });
+        }
+  
+        offset += size;
+      }
+    } else {
+      const size = data.readInt32LE(offset);
+      if (offset + size > data.length){
+        console.error('Packet size exceeds buffer length');
+        return;
+      }
+      id = data.readInt32LE(4);
+      type = data.readInt32LE(8);
+      body = size >= 10 ? data.toString('ascii', 12, size - 2) : '';
+  
+      if (id !== 0 && this.#callbacks[id]) {
+        this.#callbacks[id](body);
+        delete this.#callbacks[id];
+      } else {
+        this.#handleResponse({ id, type, body });
+      }
+    }
   }
+  
+  
+  
 
-  connect = async () => {
-    try {
-      await new Promise((resolve, reject) => {
-        this.#socket.connect(this.port, this.host, () => {
-          console.log(`Connected to RCON server at ${this.host}:${this.port}`);
-          resolve();
-        });
-        this.#socket.once('error', (err) => { // Use `once` instead of `on` to prevent multiple error handlers
-          reject(err);
-        });
-      });
-      await this.#authenticate();
-      console.log('Successfully authenticated with RCON server');
-    } catch (err) {
-      console.error(`Error connecting to RCON server: ${err}`);
-      throw err;
+  #handleResponse(response) {
+    if (response.type === 0) {
+      console.log(`Response: ${response.body}`);
+    } else if (response.type === 2) {
+      if (response.body === '') {
+        this.#authenticated = true;
+        console.log('Authenticated with RCON server');
+      } else {
+        console.error(`Authentication failed: ${response.body}`);
+      }
     }
   }
 
-  #authenticate = async () => {
-    const packet = Buffer.alloc(14 + this.password.length, 0);
-    packet.writeInt32LE(10 + this.password.length, 0);
-    packet.writeInt32LE(0, 4);
-    packet.write(this.password, 8, 'utf8');
-    packet.writeInt8(0, 8 + this.password.length);
-    packet.writeInt8(0, 9 + this.password.length);
-
-    await this.#sendPacket(packet);
+  #handleError(error) {
+    console.error(`Socket error: ${error.message}`);
   }
 
-  execute = async (command) => {
-    if (!this.#authenticated) {
-      throw new Error('Not authenticated');
-    }
-  
-    const packet = Buffer.alloc(10 + command.length, 0);
-    packet.writeInt32LE(10 + command.length, 0); // Use `10 + command.length` instead of `6 + command.length`
-    packet.writeInt32LE(0, 4);
-    packet.writeInt32LE(0, 8); // Set the request ID to 0
-    packet.write(command, 12, 'utf8'); // Write the command starting at offset 12
-    packet.writeInt8(0, 12 + command.length);
-    packet.writeInt8(0, 13 + command.length);
-  
-    return new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(() => {
-        this.#socket.off('data', onData);
-        reject(new Error('RCON command timed out'));
-      }, this.timeout); // Use `this.timeout` instead of `timeout`
-  
-      const onData = (data) => {
-        clearTimeout(timeoutId);
-        const packetSize = data.readInt32LE(0);
-        const responseType = data.readInt32LE(4);
-        const response = data.toString('utf8', 8, packetSize + 2);
-  
-        if (responseType !== 0) {
-          reject(new Error(`RCON command failed: ${response}`));
-        } else {
-          resolve(response);
-        }
-      };
-  
-      this.#socket.on('data', onData);
-      this.#socket.write(packet, () => {
-        this.#socket.removeListener('data', onData);
-      });
+  authenticate() {
+    this.send({
+      type: 3,
+      body: this.password
     });
   }
-  disconnect = () => {
-    this.#socket.destroy();
-    this.#authenticated = false;
-    clearTimeout(this.#reconnectTimeout);
-    this.#reconnectTimeout = null;
-    this.emit('disconnected');
+
+  executeCommand(command, callback) {
+    this.send({
+      type: 2,
+      body: command
+    }, callback);
   }
-  
 }
+
 
 export default Rcon;

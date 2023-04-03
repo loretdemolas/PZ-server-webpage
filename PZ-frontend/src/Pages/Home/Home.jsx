@@ -1,56 +1,78 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
 
 export default function Home() {
   const socket = useRef(null);
-  const term = useRef(null);
-  const [command, setCommand] = useState('');
+  const textAreaRef = useRef(null);
+  const [output, setOutput] = useState('');
+  const [inputValue, setInputValue] = useState('');
 
   useEffect(() => {
-    // Create a new WebSocket connection to the backend server
     socket.current = new WebSocket('ws://localhost:8080');
 
-    // Create a new instance of the terminal emulator
-    term.current = new Terminal();
-
-    // Add a "fit" addon to automatically resize the terminal to fit the container
-    const fitAddon = new FitAddon();
-    term.current.loadAddon(fitAddon);
-
-    // Configure the terminal to send input to the backend server via WebSockets
-    term.current.onData((data) => {
-      socket.current.send(data);
-    });
-
-    // Handle incoming messages from the backend server and display them in the terminal
-    socket.current.onmessage = (event) => {
-      term.current.write(event.data);
+    socket.current.onopen = () => {
+      setOutput(prev => prev + 'WebSocket connection established\n');
     };
 
-    // Clean up the WebSocket connection and terminal emulator when the component unmounts
+    socket.current.onmessage = (event) => {
+      const data = event.data;
+      setOutput(prev => prev + data + '\n');
+      textAreaRef.current.scrollTop = textAreaRef.current.scrollHeight;
+    };
+
+    socket.current.onclose = (event) => {
+      setOutput(prev => prev + 'WebSocket connection closed\n');
+      setTimeout(connectWebSocket, 1000);
+    };
+
+    const connectWebSocket = () => {
+      socket.current = new WebSocket('ws://localhost:8080');
+    }
+
     return () => {
       socket.current.close();
-      term.current.dispose();
     };
   }, []);
 
-  const handleCommandChange = (event) => {
-    setCommand(event.target.value);
+  const handleInputChange = (event) => {
+    setInputValue(event.target.value);
   };
 
-  const handleSendCommand = () => {
-    socket.current.send(`${command}\r\n`);
-    setCommand('');
+  const handleKeyDown = (event) => {
+    if (event.keyCode === 13) {
+      const command = event.target.value.trim();
+      socket.current.send(command);
+      setInputValue('');
+    }
   };
+
+  const buttons = [
+    { name: 'help', command: 'help' },
+    { name: 'reload options', command: 'reloadoptions' },
+    { name: 'add all to whitelist', command: 'addalltowhitelist' },
+  ];
 
   return (
-    <div className="App" style={{ width: '80%', height: '400px' }}>
-      <div ref={(ref) => (term.current = ref)}></div>
-      <div>
-        <input type="text" value={command} onChange={handleCommandChange} />
-        <button onClick={handleSendCommand}>Send</button>
+    <div style={{ display: 'flex', flexDirection: 'row' }}>
+      <div style={{ width: '200px', border: '2px solid black' }}>
+        <p>Another sidebar</p>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', width: '80%', height: '400px', maxWidth: '800px', marginRight: '10px', marginLeft: '10px'}}>
+        <textarea ref={textAreaRef} value={output} style={{ width: '100%', height: '400px', overflow: 'scroll' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
+          <div style={{ flex: 1 }}>
+            <input type="text" value={inputValue} onChange={handleInputChange} onKeyDown={handleKeyDown} style={{ width: '80%', height: '20px' }} />
+          </div>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {buttons.map(button => (
+              <button key={button.name} onClick={() => socket.current.send(button.command)}>{button.name}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div style={{ width: '200px', border: '2px solid black' }}>
+        <p>Players</p>
       </div>
     </div>
   );
+  
 }
