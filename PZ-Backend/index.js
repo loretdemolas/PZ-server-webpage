@@ -82,8 +82,32 @@ app.get('/api/settings', (req, res) => {
 
 app.post('/api/settings', (req, res) => {
   const settings = req.body;
+  console.log(settings)
   const iniString = ini.stringify(settings);
   fs.writeFileSync(configFilePath, iniString);
+  runWebConfigUpdater(); // starts the config updater and updates servertest.ini
+  res.json({ success: true });
+});
+
+app.post('/api/mods', (req, res) => {
+  const { Mods, WorkshopItems, ...rest } = req.body;
+  
+  // Read the current content of the INI file and parse it
+  const iniContent =fs.readFileSync(configFilePath, 'utf-8');
+  const currentIniData = ini.parse(iniContent);
+
+  // Merge the parsed object with the new data
+  const newIniData = {
+    ...currentIniData,
+    ...rest,
+    Mods: Mods,
+    WorkshopItems: WorkshopItems
+  };
+
+  // Write the merged object back to the INI file
+  const iniString = ini.stringify(newIniData);
+  fs.writeFileSync(configFilePath, iniString);
+
   runWebConfigUpdater(); // starts the config updater and updates servertest.ini
   res.json({ success: true });
 });
