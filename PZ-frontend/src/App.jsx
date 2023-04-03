@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, NavLink } from 'react-router-do
 import ServerSetting from './Pages/settings/Settings';
 import AntiCheatSetting from './Pages/settings/AntiCheat';
 import AddedContent from './Pages/settings/AddedContent';
+import Home from './Pages/Home/Home'
 
 function SettingsNavBar() {
   return (
@@ -74,7 +75,7 @@ function App() {
             <>
               <HomeNavBar />
               <Routes>
-                <Route path="/" element={<div>Home</div>} />
+                <Route path="/" element={<Home />} />
                 <Route path="/tools" element={<div>Tools</div>} />
                 <Route path="/settings" element={<div>Settings</div>} />
               </Routes>

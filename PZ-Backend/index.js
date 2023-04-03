@@ -4,7 +4,8 @@ import ini from 'ini';
 import fs from 'fs';
 import cors from 'cors';
 import { spawn } from 'child_process';
-
+import { WebSocketServer } from 'ws';
+import  Rcon  from './services/Rcon.js';
 
 // remove dot in file paths before dockerizing!!!!
 const app = express();
@@ -79,7 +80,6 @@ app.get('/api/settings', (req, res) => {
   });
 });
 
-
 app.post('/api/settings', (req, res) => {
   const settings = req.body;
   console.log(settings)
@@ -116,3 +116,60 @@ app.post('/api/mods', (req, res) => {
 const port = 3000;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`)})
+
+//rcon 
+
+const PORT = process.env.PORT || 8080;
+
+const options={
+  host:'192.168.1.183',
+  port:27015,
+  password:'Seba5054!!',
+  timeout:5000
+}
+
+const rconClient = new Rcon(options);
+
+async function connectRcon() {
+  try {
+    await rconClient.connect();
+    console.log('Connected to Rcon server.');
+    await rconClient.send('status');
+    console.log('Sent Rcon command successfully.');
+  } catch (error) {
+    console.error(`Could not connect to Rcon server. Retrying in 10 seconds... Error: ${error}`);
+    setTimeout(connectRcon, 10000);
+  }
+}
+
+rconClient.on('end', () => {
+  console.error('Disconnected from Rcon server. Retrying in 10 seconds...');
+  setTimeout(connectRcon, 10000);
+});
+
+rconClient.on('error', (err) => {
+  console.error('Error with Rcon server:', err);
+});
+
+connectRcon();
+
+const wss = new WebSocketServer({ port: PORT });
+console.log(`WebSocket server listening on port ${PORT}...`);
+
+wss.on('connection', (ws) => {
+  console.log(`Client connected to WebSocket server`);
+
+  ws.on('message', (message) => {
+    console.log('WebSocket message:', message);
+    rconClient.send(message);
+  });
+
+  rconClient.on('response', (response) => {
+    console.log('Rcon response:', response);
+    ws.send(response);
+  });
+
+  ws.on('close', () => {
+    console.log(`Client disconnected from WebSocket server`);
+  });
+});
