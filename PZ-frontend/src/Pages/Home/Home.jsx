@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PlayerList from './helpers/playerlist';
 
 export default function Home() {
   const socket = useRef(null);
@@ -70,7 +71,7 @@ export default function Home() {
         </div>
       </div>
       <div style={{ width: '200px', border: '2px solid black' }}>
-        <p>Players</p>
+        <PlayerList />
       </div>
     </div>
   );
