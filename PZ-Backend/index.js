@@ -80,6 +80,38 @@ app.get('/api/settings', (req, res) => {
   });
 });
 
+app.post('/api/server/create', (req, res) => {
+
+const services = {
+  service1: {
+   
+  },
+};
+
+// Create a Docker Compose object
+const dockerCompose = {
+  version: '3.8',
+  services,
+};
+
+// Write the Docker Compose object to a YAML file
+fs.writeFileSync('docker-compose.yml', YAML.stringify(dockerCompose));
+
+});
+
+app.post('/api/server/start', (req, res) => {
+
+});
+
+app.post('/api/server/stop', (req, res) => {
+
+});
+
+app.post('/api/server/delete', (req, res) => {
+
+});
+
+
 app.post('/api/settings', (req, res) => {
   const settings = req.body;
   console.log(settings)
